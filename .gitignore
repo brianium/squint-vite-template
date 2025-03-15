@@ -1,0 +1,9 @@
+.calva/
+.clj-kondo/*
+.cpcache/
+.lsp/
+.nrepl-port
+node_modules/
+.portal/
+.npm_pid
+dist/
