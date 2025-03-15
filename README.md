@@ -4,7 +4,7 @@ An example and starting point for building [squint](https://github.com/squint-cl
 
 ## Requirements
 
-- [babashka](https://github.com/babashka/babashka) (development and building)
+- [babashka](https://babashka.org/) (development and building)
 - [node + npm](https://nodejs.org/en/download/) (dependency management)
 
 ## Development
