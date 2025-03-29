@@ -16,15 +16,36 @@
   update-html {:doc "Update index.html with hashed filenames from Vite manifest"
                :task (let [manifest (json/read-str (slurp "dist/.vite/manifest.json") {:key-fn identity})
                            html (slurp "index.html")
+                           ;; Helper function to create HTML element based on file type
+                           create-element (fn [file-path]
+                                         (cond
+                                           (str/ends-with? file-path ".css")
+                                           (format "<link rel=\"stylesheet\" href=\"%s\" />" file-path)
+                                           (str/ends-with? file-path ".js")
+                                           (format "<script type=\"module\" src=\"%s\"></script>" file-path)
+                                           :else
+                                           (format "<script type=\"module\" src=\"%s\"></script>" file-path)))
+                           
+                           ;; Helper function to get all dependencies for an entry
+                           get-dependencies (fn [entry]
+                                           (let [imports (get entry "imports" [])
+                                                 css (get entry "css" [])]
+                                             (concat imports css)))
+                           
+                           ;; Helper function to replace an entry and its dependencies
+                           replace-entry (fn [html-content src-path entry]
+                                         (let [file-path (get entry "file")
+                                               deps (get-dependencies entry)
+                                               ;; Create HTML elements for main entry and all dependencies
+                                               elements (str/join "\n    " (map create-element (cons file-path deps)))
+                                               ;; Create regex pattern to match the original line
+                                               pattern (re-pattern (format ".*%s.*" (str/escape src-path {\/ "\\/"})))]
+                                           (str/replace html-content pattern elements)))
+                           
                            updated-html (reduce (fn [html-content [key entry]]
-                                                 (let [src-path (get entry "src")
-                                                       file-path (get entry "file")]
-                                                   (if (and src-path file-path (get entry "isEntry"))
-                                                     (-> html-content
-                                                         ;; Replace exact path
-                                                         (str/replace (str "\"" src-path "\"") (str "\"" file-path "\""))
-                                                         ;; Replace path with leading slash
-                                                         (str/replace (str "\"/" src-path "\"") (str "\"/" file-path "\"")))
+                                                 (let [src-path (get entry "src")]
+                                                   (if (and src-path (get entry "isEntry"))
+                                                     (replace-entry html-content src-path entry)
                                                      html-content)))
                                                html
                                                manifest)]

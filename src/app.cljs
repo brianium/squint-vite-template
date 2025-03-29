@@ -1,6 +1,7 @@
-(ns app)
+(ns app
+  (:require [app.lib :as lib]))
 
 (defn run []
-  (js/console.log "Squint Rulez Dood"))
+  (lib/my-fn))
 
 (run)

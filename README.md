@@ -27,6 +27,36 @@ In addition to producing production css and js files, the build task will handle
 
 See the `update-html` task in the `bb.edn` filefor more details
 
+### Caveats
+
+Going from squint to vite creates some issues with CSS imports locally. To get around this, the vite config for this repo uses an alias:
+
+```js
+{
+    resolve: {
+        alias: {
+            '@': '/src'
+        }
+    }
+}
+```
+
+Then you can import your css in your squint cljs files like this:
+
+```clojure
+(ns app.lib
+  (:require ["@/app/lib.css"]))
+```
+
+`bb build` will ensure all css is copied for the production build. This is not an issue for css files contained in `node_modules`. i.e this will be fine as is:
+
+```clojure
+(ns editor
+  (:require ["@yaireo/tagify$default" :as Tagify]
+            ["@yaireo/tagify/dist/tagify.css"]))
+```
+
+
 ## Deploying
 
 The `dist` directory is the production build and can be deployed to your favorite static site host. The repo includes a github actions configuration that supports deploying to github pages.

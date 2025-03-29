@@ -13,4 +13,9 @@ export default defineConfig({
       input: ['src/app.css', 'dist/app.js']
     },
   },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  }
 });
